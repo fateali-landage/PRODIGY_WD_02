@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batman Stopwatch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Poppins', sans-serif;
+      color: #FFD700;
+
+      
+  background: url('batman-bg.png')  center center/contain;
+  background-color: #000; 
+
+    }
+
+    .container {
+      background: rgba(20, 20, 20, 0.85);
+      padding: 2.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 0 40px rgba(255, 215, 0, 0.3);
+      text-align: center;
+      min-width: 320px;
+      border: 2px solid #FFD700;
+      position: relative;
+    }
+
+    .container::before {
+      content: "🦇";
+      font-size: 6rem;
+      color: rgba(255, 215, 0, 0.05);
+      position: absolute;
+      top: 10px;
+      right: 15px;
+    }
+
+    .title {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+
+    .display {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      text-shadow: 0 0 25px rgba(255, 215, 0, 1);
+      letter-spacing: 2px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+
+    button {
+      padding: 0.8rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: #FFD700;
+      color: #0a0a0a;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background: #f5c518;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    }
+
+    .laps {
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      background: rgba(255, 215, 0, 0.05);
+    }
+
+    .lap-time {
+      padding: 0.5rem;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+      text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+    }
+
+    .laps::-webkit-scrollbar { width: 8px; }
+    .laps::-webkit-scrollbar-thumb { background: rgba(255, 215, 0, 0.5); border-radius: 4px; }
+    .laps::-webkit-scrollbar-thumb:hover { background: rgba(255, 215, 0, 0.8); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Batman Stopwatch</h1>
+    <div class="display">00:00:00.00</div>
+    <div class="controls">
+      <button id="startBtn">Start</button>
+      <button id="pauseBtn">Pause</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+    <div class="laps"></div>
+  </div>
+
+  <script>
+    let startTime, elapsedTime = 0, timerInterval, isRunning = false, lapCount = 0;
+    const display = document.querySelector('.display');
+    const startBtn = document.getElementById('startBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const lapsContainer = document.querySelector('.laps');
+
+    function formatTime(ms) {
+      const hours = Math.floor(ms / 3600000);
+      const minutes = Math.floor((ms % 3600000) / 60000);
+      const seconds = Math.floor((ms % 60000) / 1000);
+      const milliseconds = Math.floor((ms % 1000) / 10);
+      return `${String(hours).padStart(2,'0')}:${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(milliseconds).padStart(2,'0')}`;
+    }
+
+    function updateDisplay() { display.textContent = formatTime(elapsedTime); }
+
+    function start() {
+      if (!isRunning) {
+        isRunning = true;
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(() => { elapsedTime = Date.now() - startTime; updateDisplay(); }, 10);
+        startBtn.textContent = 'Lap';
+      } else {
+        lapCount++;
+        const lapTime = document.createElement('div');
+        lapTime.classList.add('lap-time');
+        lapTime.textContent = `Lap ${lapCount}: ${formatTime(elapsedTime)}`;
+        lapsContainer.insertBefore(lapTime, lapsContainer.firstChild);
+      }
+    }
+
+    function pause() {
+      if (isRunning) {
+        isRunning = false;
+        clearInterval(timerInterval);
+        startBtn.textContent = 'Start';
+      }
+    }
+
+    function reset() {
+      isRunning = false;
+      clearInterval(timerInterval);
+      elapsedTime = 0; lapCount = 0; updateDisplay();
+      startBtn.textContent = 'Start';
+      lapsContainer.innerHTML = '';
+    }
+
+    startBtn.addEventListener('click', start);
+    pauseBtn.addEventListener('click', pause);
+    resetBtn.addEventListener('click', reset);
+  </script>
+</body>
+</html>
